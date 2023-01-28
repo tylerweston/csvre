@@ -5,17 +5,35 @@ import os
 specification
 
 a,b,c,d -> d,c,b,a                  # reverse order of columns
-a_c -> ac                           # drop middle column
+a,_,c -> a,c                        # drop middle column
 a,b,c -> "static info",a,b,c        # insert extra string in first column
 
 tyler weston 2023
 
+use:
+    python csvre.py input_file output_file input_pattern output_pattern (-r)
+
+(-r) is optional and will skip the first line of input file if you
+have a header
 """
 
 def main():
     print("csvre")
-    # TODO: add remove header flag
-    # get in file, out file, pattern in, pattern out
+
+    skipfirst = False
+
+    if len(sys.argv) < 5 or len(sys.argv) > 6:
+        print("python main.py infile outfile inpattern outpattern")
+        exit()
+    
+    if len(sys.argv) == 6:
+        if sys.argv[5] == '-r':
+            skipfirst = True
+            sys.argv.pop()
+        else:
+            print("flag not recognized")
+            exit()
+    
     if len(sys.argv) != 5:
         print("python main.py infile outfile inpattern outpattern")
         exit()
@@ -50,6 +68,9 @@ def main():
 
     output_length = len(outpattern.split(','))
     strings = get_strings(outpattern)
+
+    if skipfirst:
+        line = infile.readline().rstrip()
 
     while line != "":
         res = parse_line(line, mapping, output_length)
